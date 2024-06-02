@@ -156,6 +156,7 @@
             </div>
             <button onclick="addTeacherField()">Add More Teachers</button>
             <button onclick="submitTeachers()">Submit Teachers</button>
+
         </div>
 
         <!-- Block 2: Course Details -->
@@ -190,43 +191,31 @@
 
     <!-- script -->
     <script>
-        let teacherCount = 0;
-        const t1 = document.querySelector("#t1");
-        const numberOfClassRoom = document.querySelector("#numClassrooms");
-        const numberOfSubjects = document.querySelector("#numSubjects");
-        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
         function addTeacherField() {
-            teacherCount++;
-            const teacherContainer = document.getElementById('teacherContainer');
+            const teacherEntry = document.createElement('div');
+            teacherEntry.classList.add('teacher-entry');
 
-            const teacherDiv = document.createElement('div');
-            teacherDiv.className = 'teacher-entry';
+            const teacherIdLabel = document.createElement('label');
+            teacherIdLabel.textContent = 'Teacher ID:';
+            const teacherId = document.createElement('input');
+            teacherId.type = 'text';
+            teacherId.classList.add('teacherId');
+            teacherId.placeholder = 'Enter Teacher ID';
 
-            const labelId = document.createElement('label');
-            labelId.textContent = 'Teacher ID:';
+            const teacherNameLabel = document.createElement('label');
+            teacherNameLabel.textContent = 'Teacher Name:';
+            const teacherName = document.createElement('input');
+            teacherName.type = 'text';
+            teacherName.classList.add('teacherName');
+            teacherName.placeholder = 'Enter Teacher Name';
 
-            const inputId = document.createElement('input');
-            inputId.type = 'text';
-            inputId.id = 'teacherId' + teacherCount;
-            inputId.className = 'teacherId';
-            inputId.placeholder = 'Enter Teacher ID';
+            teacherEntry.appendChild(teacherIdLabel);
+            teacherEntry.appendChild(teacherId);
+            teacherEntry.appendChild(teacherNameLabel);
+            teacherEntry.appendChild(teacherName);
 
-            const labelName = document.createElement('label');
-            labelName.textContent = 'Teacher Name:';
-
-            const inputName = document.createElement('input');
-            inputName.type = 'text';
-            inputName.id = 'teacherName' + teacherCount;
-            inputName.className = 'teacherName';
-            inputName.placeholder = 'Enter Teacher Name';
-
-            teacherDiv.appendChild(labelId);
-            teacherDiv.appendChild(inputId);
-            teacherDiv.appendChild(labelName);
-            teacherDiv.appendChild(inputName);
-
-            teacherContainer.appendChild(teacherDiv);
+            document.getElementById('teacherContainer').appendChild(teacherEntry);
+            // document.body.insertBefore(teacherEntry, document.querySelector('button'));
         }
 
         function addSubjectFields() {
@@ -276,7 +265,6 @@
                 classroomContainer.appendChild(input);
             }
         }
-
         function submitTeachers() {
             const teacherEntries = document.querySelectorAll('.teacher-entry');
             const teachers = Array.from(teacherEntries).map(entry => {
@@ -293,19 +281,23 @@
                 },
                 body: JSON.stringify(teachers)
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Teachers submitted successfully:', data);
-            })
-            .catch(error => {
-                console.error('Error submitting teachers:', error);
-            });
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Teachers submitted successfully:', data);
+                })
+                .catch(error => {
+                    console.error('Error submitting teachers:', error);
+                });
         }
 
         function submitCourses() {
             const courseName = document.getElementById('courseName').value;
             const subjectInputs = document.querySelectorAll('#subjectsContainer input[type="text"]');
-            const subjects = Array.from(subjectInputs).map(input => input.value);
+            const subjectSelects = document.querySelectorAll('#subjectsContainer select');
+            const subjects = Array.from(subjectInputs).map((input, index) => ({
+                name: input.value,
+                teacher: subjectSelects[index].value
+            }));
 
             const course = {
                 name: courseName,
@@ -319,126 +311,162 @@
                 },
                 body: JSON.stringify(course)
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Course submitted successfully:', data);
-            })
-            .catch(error => {
-                console.error('Error submitting course:', error);
-            });
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Course submitted successfully:', data);
+                })
+                .catch(error => {
+                    console.error('Error submitting course:', error);
+                });
         }
 
         function submitClassrooms() {
-            const classroomInputs = document.querySelectorAll('#classroomContainer input[type="text"]');
-            const classrooms = Array.from(classroomInputs).map(input => input.value);
+    const classroomInputs = document.querySelectorAll('#classroomContainer input[type="text"]');
+    const classrooms = Array.from(classroomInputs).map(input => input.value);
 
-            fetch('http://localhost:3000/api/v1/users/classrooms', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(classrooms)
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Classrooms submitted successfully:', data);
-            })
-            .catch(error => {
-                console.error('Error submitting classrooms:', error);
-            });
+    fetch('http://localhost:3000/api/v1/users/classrooms', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(classrooms)
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Classrooms submitted successfully:', data);
+        })
+        .catch(error => {
+            console.error('Error submitting classrooms:', error);
+        });
+}
+
+        function createTable(days, timeSlots) {
+    var table = document.createElement("table");
+    var tbody = document.createElement("tbody");
+
+    // Create header row
+    var headerRow = document.createElement("tr");
+    var emptyHeader = document.createElement("th");
+    headerRow.appendChild(emptyHeader); // Empty corner cell
+
+    days.forEach(day => {
+        var th = document.createElement("th");
+        th.textContent = day;
+        headerRow.appendChild(th);
+    });
+    tbody.appendChild(headerRow);
+
+    // Create rows for each time slot
+    timeSlots.forEach(timeSlot => {
+        var row = document.createElement("tr");
+        var timeCell = document.createElement("td");
+        timeCell.textContent = timeSlot;
+        row.appendChild(timeCell);
+
+        // Create cells for each day
+        days.forEach(() => {
+            var cell = document.createElement("td");
+            row.appendChild(cell);
+        });
+
+        tbody.appendChild(row);
+    });
+
+    table.appendChild(tbody);
+    table.style.borderCollapse = "collapse";
+    table.style.border = "2px solid black";
+
+    return table;
+}
+
+function fillTableWithData(table, data, classId) {
+    console.log("table",table)
+    console.log("data",data);
+    console.log("classId",classId);
+
+    const days = Object.keys(data[classId]); // Assuming days are consistent across all keys
+    console.log("days",days)
+    const tbody = table.getElementsByTagName("tbody")[0];
+
+    for (let i = 1; i < tbody.rows.length; i++) {
+        const row = tbody.rows[i];
+        const timeSlot = row.cells[0].textContent;
+
+        for (let j = 1; j < row.cells.length; j++) {
+            const cell = row.cells[j];
+            const day = days[j - 1];
+
+            // Check if the time slot exists in the data and if the subjects array is not empty
+            if (data) {
+                // const subject = data[classId][day][timeSlot].subjects[0].name;
+                // const teacher = data[classId][day][timeSlot].subjects[0].teacher;
+                const subject = data[classId][day][timeSlot].subject;
+                const teacher = data[classId][day][timeSlot].teacher;
+                cell.textContent = `Subject: ${subject}, Teacher: ${teacher}`;
+            } else {
+                cell.textContent = "No Class";
+            }
         }
+    }
+}   
+function generateTimetable() {
+    fetch('http://localhost:3000/api/v1/users/generate-timetable', {
+        method: 'POST'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json(); // Parse JSON data from the response
+    })
+    .then(data => {
+        console.log('Timetable generated successfully:', data);
+        t1.classList.add("hide");
+        const timetableContainer = document.getElementById('timetableContainer');
+        timetableContainer.innerHTML = ''; // Clear any existing content
 
-        function createTable() {
-            const numRows = document.getElementById('numSubjects').value;
+        // Get the list of classrooms
+        const classrooms = Object.keys(data);
 
-            var table = document.createElement("table");
-            var tbody = document.createElement("tbody");
+        // Number of timetables to display per row
+        const timetablesPerRow = 10; // Change this value as per your requirement
 
-            for (var i = 0; i <= numRows; i++) {
-                var row = document.createElement("tr");
-                for (var j = 0; j <= days.length; j++) {
-                    var cell = document.createElement("td");
-                    cell.textContent = "";
-                    row.appendChild(cell);
-                }
-                tbody.appendChild(row);
+        // Generate rows for timetables
+        for (let i = 0; i < classrooms.length; i += timetablesPerRow) {
+            const row = document.createElement('div');
+            row.classList.add('timetable-row');
+
+            for (let j = 0; j < timetablesPerRow && (i + j) < classrooms.length; j++) {
+                const classId = classrooms[i + j];
+                const days = Object.keys(data[classId]); // Assuming days are consistent across all keys
+                const timeSlots = Object.keys(data[classId][days[0]]); // Assuming time slots are consistent across all days
+
+                const table = createTable(days, timeSlots);
+                fillTableWithData(table, data, classId);
+
+                const tableContainer = document.createElement('div');
+                tableContainer.classList.add('table-container');
+
+                const tableHeader = document.createElement('h2');
+                tableHeader.textContent = `Timetable for Classroom ${classId}`;
+
+                tableContainer.appendChild(tableHeader);
+                tableContainer.appendChild(table);
+
+                row.appendChild(tableContainer);
             }
 
-            table.appendChild(tbody);
-            table.style.borderCollapse = "collapse";
-            table.style.border = "2px solid black";
-
-            return table;
+            timetableContainer.appendChild(row);
         }
 
-        function fillTableWithData(table) {
-            const teacherNames = document.querySelectorAll('.teacherName');
-            const subjectInputs = document.querySelectorAll('#subjectsContainer input[type="text"]');
-            const subjectSelects = document.querySelectorAll('#subjectsContainer select');
-            let k = 0;
-
-            for (let i = 0; i < table.rows.length; i++) {
-                for (let j = 0; j < table.rows[i].cells.length; j++) {
-                    const cell = table.rows[i].cells[j];
-
-                    if (i === 0 && j === 0) {
-                        cell.innerHTML = "<b>Time/Days<b>";
-                    } else if (i === 1 && j === 0) {
-                        cell.textContent = "10:00 AM to 11:00 AM";
-                    } else if (i === 2 && j === 0) {
-                        cell.textContent = "11:00 AM to 12:00 PM";
-                    } else if (i === 3 && j === 0) {
-                        cell.textContent = "12:00 PM to 1:00 PM";
-                    } else if (i === 4 && j === 0) {
-                        cell.textContent = "3:00 PM to 4:00 PM";
-                    } else if (i === 5 && j === 0) {
-                        cell.textContent = "4:00 PM to 5:00 PM";
-                    } else if (i === 6 && j === 0) {
-                        cell.textContent = "5:00 PM to 6:00 PM";
-                    } else if (i === 0 && j !== 0) {
-                        cell.innerHTML = `<b>${days[k]}<b>`;
-                        k++;
-                    } else if (i !== 0 && j === 0) {
-                        continue;
-                    } else {
-                        const subjectIndex = i - 1;
-
-                        if (subjectIndex < subjectInputs.length) {
-                            const teacherIndex = j % teacherNames.length;
-                            const teacherName = teacherNames[teacherIndex].value;
-                            const subjectName = subjectInputs[subjectIndex].value || subjectSelects[subjectIndex].value;
-
-                            cell.textContent = `Subject: ${subjectName}`;
-                        }
-                    }
-                }
-            }
-        }
-
-        function generateTimetable() {
-            console.log("enter")
-            fetch('http://localhost:3000/api/v1/users/generate-timetable', {
-                method: 'GET'
-            })
-            .then(data => {
-                console.log("data",data)
-                console.log('Timetable generated successfully:', data);
-
-                t1.classList.add("hide");
-                const timetableContainer = document.getElementById('timetableContainer');
-                timetableContainer.innerHTML = ''; // Clear any existing content
-
-                const table = createTable();
-                timetableContainer.appendChild(table);
-                console.log("table",table)
-                fillTableWithData(table);
-                timetableContainer.classList.remove("hide");
-                document.body.appendChild(document.getElementById('generateButtonContainer'));
-            })
-            .catch(error => {
-                console.error('Error generating timetable:', error);
-            });
-        }
+        timetableContainer.classList.remove("hide");
+        document.body.appendChild(document.getElementById('generateButtonContainer'));
+    })
+    .catch(error => {
+        console.error('Error generating timetable:', error);
+    });
+}
+    
 
         function logout() {
             window.location.href = 'index.html';
