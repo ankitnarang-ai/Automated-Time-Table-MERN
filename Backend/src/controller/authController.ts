@@ -20,10 +20,13 @@ export const signup = async (req: Request, res: Response) => {
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
         }
-
         // Create new user
         const newUser = new User({ email, password });
         await newUser.save();
+
+        // Hash password
+        // const hashedPassword = await bcrypt.hash(password, 10);
+        // newUser.password = hashedPassword;
 
         // Respond with success message
         res.status(201).json({ message: 'User created successfully' });
@@ -44,27 +47,22 @@ export const login = async (req: Request, res: Response) => {
 
     try {
         // Check if user exists
-        console.log("testing")
         const user = await User.findOne({ email });
-        console.log("user",user)
         if (!user) {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
-        console.log(user.password);
-        console.log(password)
         // Validate password
         let isValidPassword = false;
         // const isValidPassword = await bcrypt.compare(password, user.password);
         if(password===user.password){
             isValidPassword=true;
         }
-        console.log("isValidPassword",isValidPassword)
         if (!isValidPassword) {
             return res.status(400).json({ message: 'Invalid password' });
         }
 
         // Generate JWT token
-        const token = jwt.sign({ userId: user._id }, 'secret', { expiresIn: '1h' });
+        const token = jwt.sign({ userId: user._id, email: user.email }, 'secret', { expiresIn: '1h' });
 
         // Respond with token
         res.json({ token });
