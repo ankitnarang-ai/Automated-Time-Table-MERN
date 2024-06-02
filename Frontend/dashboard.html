@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        /* Base Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        /* Navbar Styles */
+        nav {
+            background-color: #8e44ad;
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        nav a {
+            color: white;
+            margin: 0 20px;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #f4f4f4;
+        }
+
+        /* Content Styles */
+        .content {
+            display: flex;
+            justify-content: space-between;
+            margin: 50px 10%;
+            gap: 20px;
+            /* Spacing between blocks */
+        }
+
+        .block {
+            flex-basis: 32%;
+            background-color: white;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            position: relative;
+            /* Set for absolute positioning of children */
+        }
+
+        h3 {
+            border-bottom: 2px solid #8e44ad;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        /* Input and Label Styles */
+        label {
+            display: block;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            transition: border 0.3s ease;
+        }
+
+        input:focus,
+        select:focus {
+            border: 1px solid #8e44ad;
+            outline: none;
+        }
+
+        /* Button Styles */
+        button {
+            background-color: #8e44ad;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #732d91;
+        }
+
+        /* Centered Generate Button */
+        center {
+            margin-top: 30px;
+        }
+
+        /* Hide class */
+        .hide {
+            display: none;
+        }
+
+        /* Timetable Container Styles */
+        #timetableContainer {
+            margin: 50px auto;
+            /* Center the table */
+            text-align: center;
+        }
+
+        #timetableContainer table {
+            border-collapse: collapse;
+            border: 2px solid black;
+            width: 100%;
+        }
+
+        #timetableContainer td {
+            border: 1px solid #8e44ad;
+            padding: 10px;
+        }
+
+        /* Move generate button to bottom */
+        #generateButtonContainer {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="#" onclick="logout()">Logout</a>
+    </nav>
+
+    <div class="content" id="t1">
+        <!-- Block 1: Teacher Details -->
+        <div class="block">
+            <h3>Teacher Details</h3>
+            <div id="teacherContainer">
+                <div class="teacher-entry">
+                    <label for="teacherId0">Teacher ID:</label>
+                    <input type="text" id="teacherId0" class="teacherId" placeholder="Enter Teacher ID">
+                    <label for="teacherName0">Teacher Name:</label>
+                    <input type="text" id="teacherName0" class="teacherName" placeholder="Enter Teacher Name">
+                </div>
+            </div>
+            <button onclick="addTeacherField()">Add More Teachers</button>
+            <button onclick="submitTeachers()">Submit Teachers</button>
+        </div>
+
+        <!-- Block 2: Course Details -->
+        <div class="block">
+            <h3>Course Details</h3>
+            <label for="courseName">Course Name:</label>
+            <input type="text" id="courseName" placeholder="Enter course name">
+            <label for="numSubjects">Number of Subjects:</label>
+            <input type="number" id="numSubjects" placeholder="Enter number of subjects" onchange="addSubjectFields()">
+            <div id="subjectsContainer"></div>
+            <button onclick="submitCourses()">Submit Courses</button>
+        </div>
+
+        <!-- Block 3: Classroom Details -->
+        <div class="block">
+            <h3>Add Classroom</h3>
+            <label for="numClassrooms">Number of Classrooms:</label>
+            <input type="number" id="numClassrooms" placeholder="Enter number of classrooms">
+            <div id="classroomContainer"></div>
+            <button onclick="addClassroomFields()">Add Classrooms</button>
+            <button onclick="submitClassrooms()">Submit Classrooms</button>
+        </div>
+    </div>
+
+    <!-- Timetable Container -->
+    <div id="timetableContainer" class="content hide"></div>
+
+    <!-- Generate Timetable Button -->
+    <center id="generateButtonContainer">
+        <button onclick="generateTimetable()">Generate Timetable</button>
+    </center>
+
+    <!-- script -->
+    <script>
+        let teacherCount = 0;
+        const t1 = document.querySelector("#t1");
+        const numberOfClassRoom = document.querySelector("#numClassrooms");
+        const numberOfSubjects = document.querySelector("#numSubjects");
+        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+        function addTeacherField() {
+            teacherCount++;
+            const teacherContainer = document.getElementById('teacherContainer');
+
+            const teacherDiv = document.createElement('div');
+            teacherDiv.className = 'teacher-entry';
+
+            const labelId = document.createElement('label');
+            labelId.textContent = 'Teacher ID:';
+
+            const inputId = document.createElement('input');
+            inputId.type = 'text';
+            inputId.id = 'teacherId' + teacherCount;
+            inputId.className = 'teacherId';
+            inputId.placeholder = 'Enter Teacher ID';
+
+            const labelName = document.createElement('label');
+            labelName.textContent = 'Teacher Name:';
+
+            const inputName = document.createElement('input');
+            inputName.type = 'text';
+            inputName.id = 'teacherName' + teacherCount;
+            inputName.className = 'teacherName';
+            inputName.placeholder = 'Enter Teacher Name';
+
+            teacherDiv.appendChild(labelId);
+            teacherDiv.appendChild(inputId);
+            teacherDiv.appendChild(labelName);
+            teacherDiv.appendChild(inputName);
+
+            teacherContainer.appendChild(teacherDiv);
+        }
+
+        function addSubjectFields() {
+            const numSubjects = document.getElementById('numSubjects').value;
+            const subjectsContainer = document.getElementById('subjectsContainer');
+            subjectsContainer.innerHTML = ''; // Clear the current fields
+
+            const teacherNames = document.querySelectorAll('.teacherName');
+
+            for (let i = 0; i < numSubjects; i++) {
+                const label = document.createElement('label');
+                label.textContent = `Subject ${i + 1}:`;
+
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.placeholder = `Enter Subject ${i + 1} Name`;
+
+                const select = document.createElement('select');
+
+                teacherNames.forEach(teacherInput => {
+                    const option = document.createElement('option');
+                    option.value = teacherInput.value;
+                    option.textContent = teacherInput.value;
+                    select.appendChild(option);
+                });
+
+                subjectsContainer.appendChild(label);
+                subjectsContainer.appendChild(input);
+                subjectsContainer.appendChild(select);
+            }
+        }
+
+        function addClassroomFields() {
+            const numClassrooms = document.getElementById('numClassrooms').value;
+            const classroomContainer = document.getElementById('classroomContainer');
+            classroomContainer.innerHTML = '';
+
+            for (let i = 0; i < numClassrooms; i++) {
+                const label = document.createElement('label');
+                label.textContent = `Classroom ${i + 1} Name:`;
+
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.placeholder = `Enter Classroom ${i + 1} Name`;
+
+                classroomContainer.appendChild(label);
+                classroomContainer.appendChild(input);
+            }
+        }
+
+        function submitTeachers() {
+            const teacherEntries = document.querySelectorAll('.teacher-entry');
+            const teachers = Array.from(teacherEntries).map(entry => {
+                return {
+                    id: entry.querySelector('.teacherId').value,
+                    name: entry.querySelector('.teacherName').value
+                };
+            });
+
+            fetch('http://localhost:3000/api/v1/users/teachers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(teachers)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Teachers submitted successfully:', data);
+            })
+            .catch(error => {
+                console.error('Error submitting teachers:', error);
+            });
+        }
+
+        function submitCourses() {
+            const courseName = document.getElementById('courseName').value;
+            const subjectInputs = document.querySelectorAll('#subjectsContainer input[type="text"]');
+            const subjects = Array.from(subjectInputs).map(input => input.value);
+
+            const course = {
+                name: courseName,
+                subjects: subjects
+            };
+
+            fetch('http://localhost:3000/api/v1/users/courses', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(course)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Course submitted successfully:', data);
+            })
+            .catch(error => {
+                console.error('Error submitting course:', error);
+            });
+        }
+
+        function submitClassrooms() {
+            const classroomInputs = document.querySelectorAll('#classroomContainer input[type="text"]');
+            const classrooms = Array.from(classroomInputs).map(input => input.value);
+
+            fetch('http://localhost:3000/api/v1/users/classrooms', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(classrooms)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Classrooms submitted successfully:', data);
+            })
+            .catch(error => {
+                console.error('Error submitting classrooms:', error);
+            });
+        }
+
+        function createTable() {
+            const numRows = document.getElementById('numSubjects').value;
+
+            var table = document.createElement("table");
+            var tbody = document.createElement("tbody");
+
+            for (var i = 0; i <= numRows; i++) {
+                var row = document.createElement("tr");
+                for (var j = 0; j <= days.length; j++) {
+                    var cell = document.createElement("td");
+                    cell.textContent = "";
+                    row.appendChild(cell);
+                }
+                tbody.appendChild(row);
+            }
+
+            table.appendChild(tbody);
+            table.style.borderCollapse = "collapse";
+            table.style.border = "2px solid black";
+
+            return table;
+        }
+
+        function fillTableWithData(table) {
+            const teacherNames = document.querySelectorAll('.teacherName');
+            const subjectInputs = document.querySelectorAll('#subjectsContainer input[type="text"]');
+            const subjectSelects = document.querySelectorAll('#subjectsContainer select');
+            let k = 0;
+
+            for (let i = 0; i < table.rows.length; i++) {
+                for (let j = 0; j < table.rows[i].cells.length; j++) {
+                    const cell = table.rows[i].cells[j];
+
+                    if (i === 0 && j === 0) {
+                        cell.innerHTML = "<b>Time/Days<b>";
+                    } else if (i === 1 && j === 0) {
+                        cell.textContent = "10:00 AM to 11:00 AM";
+                    } else if (i === 2 && j === 0) {
+                        cell.textContent = "11:00 AM to 12:00 PM";
+                    } else if (i === 3 && j === 0) {
+                        cell.textContent = "12:00 PM to 1:00 PM";
+                    } else if (i === 4 && j === 0) {
+                        cell.textContent = "3:00 PM to 4:00 PM";
+                    } else if (i === 5 && j === 0) {
+                        cell.textContent = "4:00 PM to 5:00 PM";
+                    } else if (i === 6 && j === 0) {
+                        cell.textContent = "5:00 PM to 6:00 PM";
+                    } else if (i === 0 && j !== 0) {
+                        cell.innerHTML = `<b>${days[k]}<b>`;
+                        k++;
+                    } else if (i !== 0 && j === 0) {
+                        continue;
+                    } else {
+                        const subjectIndex = i - 1;
+
+                        if (subjectIndex < subjectInputs.length) {
+                            const teacherIndex = j % teacherNames.length;
+                            const teacherName = teacherNames[teacherIndex].value;
+                            const subjectName = subjectInputs[subjectIndex].value || subjectSelects[subjectIndex].value;
+
+                            cell.textContent = `Subject: ${subjectName}`;
+                        }
+                    }
+                }
+            }
+        }
+
+        function generateTimetable() {
+            console.log("enter")
+            fetch('http://localhost:3000/api/v1/users/generate-timetable', {
+                method: 'GET'
+            })
+            .then(data => {
+                console.log("data",data)
+                console.log('Timetable generated successfully:', data);
+
+                t1.classList.add("hide");
+                const timetableContainer = document.getElementById('timetableContainer');
+                timetableContainer.innerHTML = ''; // Clear any existing content
+
+                const table = createTable();
+                timetableContainer.appendChild(table);
+                console.log("table",table)
+                fillTableWithData(table);
+                timetableContainer.classList.remove("hide");
+                document.body.appendChild(document.getElementById('generateButtonContainer'));
+            })
+            .catch(error => {
+                console.error('Error generating timetable:', error);
+            });
+        }
+
+        function logout() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+
+</html>
