@@ -363,7 +363,6 @@
         timeCell.textContent = timeSlot;
         row.appendChild(timeCell);
 
-        // Create cells for each day
         days.forEach(() => {
             var cell = document.createElement("td");
             row.appendChild(cell);
@@ -380,12 +379,8 @@
 }
 
 function fillTableWithData(table, data, classId) {
-    console.log("table",table)
-    console.log("data",data);
-    console.log("classId",classId);
 
-    const days = Object.keys(data[classId]); // Assuming days are consistent across all keys
-    console.log("days",days)
+    const days = Object.keys(data[classId]); 
     const tbody = table.getElementsByTagName("tbody")[0];
 
     for (let i = 1; i < tbody.rows.length; i++) {
@@ -423,23 +418,21 @@ function generateTimetable() {
         console.log('Timetable generated successfully:', data);
         t1.classList.add("hide");
         const timetableContainer = document.getElementById('timetableContainer');
-        timetableContainer.innerHTML = ''; // Clear any existing content
-
-        // Get the list of classrooms
+        timetableContainer.innerHTML = ''; 
+        
         const classrooms = Object.keys(data);
 
-        // Number of timetables to display per row
-        const timetablesPerRow = 10; // Change this value as per your requirement
+        const timetablesPerRow = 10; 
 
-        // Generate rows for timetables
+      
         for (let i = 0; i < classrooms.length; i += timetablesPerRow) {
             const row = document.createElement('div');
             row.classList.add('timetable-row');
 
             for (let j = 0; j < timetablesPerRow && (i + j) < classrooms.length; j++) {
                 const classId = classrooms[i + j];
-                const days = Object.keys(data[classId]); // Assuming days are consistent across all keys
-                const timeSlots = Object.keys(data[classId][days[0]]); // Assuming time slots are consistent across all days
+                const days = Object.keys(data[classId]);
+                const timeSlots = Object.keys(data[classId][days[0]]); 
 
                 const table = createTable(days, timeSlots);
                 fillTableWithData(table, data, classId);
