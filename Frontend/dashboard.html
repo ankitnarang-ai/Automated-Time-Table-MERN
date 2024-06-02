@@ -385,7 +385,7 @@
     table.style.border = "2px solid black";
 
     return table;
-}
+        }
 
 function fillTableWithData(table, data, classId) {
     const days = Object.keys(data[classId]); // Assuming days are consistent across all keys
@@ -465,50 +465,7 @@ function generateTimetable() {
         console.error('Error generating timetable:', error);
     });
 }
-    fetch('http://localhost:3000/api/v1/users/generate-timetable', {
-        method: 'POST'
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json(); // Parse JSON data from the response
-    })
-    .then(data => {
-        console.log('Timetable generated successfully:', data);
-        t1.classList.add("hide");
-        const timetableContainer = document.getElementById('timetableContainer');
-        timetableContainer.innerHTML = ''; // Clear any existing content
-
-        // Get the list of classrooms
-        const classrooms = Object.keys(data);
-
-        // Generate timetables for each classroom
-        classrooms.forEach(classId => {
-            const days = Object.keys(data[classId]); // Assuming days are consistent across all keys
-            const timeSlots = Object.keys(data[classId][days[0]]); // Assuming time slots are consistent across all days
-
-            const table = createTable(days, timeSlots);
-            fillTableWithData(table, data, classId);
-
-            const tableContainer = document.createElement('div');
-            tableContainer.classList.add('table-container');
-
-            const tableHeader = document.createElement('h2');
-            tableHeader.textContent = `Timetable for Classroom ${classId}`;
-
-            tableContainer.appendChild(tableHeader);
-            tableContainer.appendChild(table);
-
-            timetableContainer.appendChild(tableContainer);
-        });
-
-        timetableContainer.classList.remove("hide");
-        document.body.appendChild(document.getElementById('generateButtonContainer'));
-    })
-    .catch(error => {
-        console.error('Error generating timetable:', error);
-    });
+    
 
         function logout() {
             window.location.href = 'index.html';
