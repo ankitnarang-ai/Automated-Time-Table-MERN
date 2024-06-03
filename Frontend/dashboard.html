@@ -284,6 +284,7 @@
                 .then(response => response.json())
                 .then(data => {
                     console.log('Teachers submitted successfully:', data);
+                    alert("Teachers submitted successfully")
                 })
                 .catch(error => {
                     console.error('Error submitting teachers:', error);
@@ -314,6 +315,7 @@
                 .then(response => response.json())
                 .then(data => {
                     console.log('Course submitted successfully:', data);
+                    alert("Courses submitted successfully")
                 })
                 .catch(error => {
                     console.error('Error submitting course:', error);
@@ -334,6 +336,7 @@
         .then(response => response.json())
         .then(data => {
             console.log('Classrooms submitted successfully:', data);
+            alert("Classrooms submitted successfully")
         })
         .catch(error => {
             console.error('Error submitting classrooms:', error);
