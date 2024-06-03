@@ -125,21 +125,29 @@ function createTimetable(): Record<string, Record<string, Record<string, { subje
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const times = ['10:00 AM to 11:00 AM', '11:00 AM to 12:00 PM', '12:00 PM to 1:00 PM', '3:00 PM to 4:00 PM'];
 
-    const subjects = courses.subjects;
-    const numSubjects = subjects.length;
-    
+    const subjects = [...courses.subjects];
+    const teachersList = [...teachers];
+
     for (const classroom of classrooms) {
         timetable[classroom] = {};
+
+        // Shuffle subjects and teachers for each classroom
+        const shuffledSubjects = subjects.sort(() => 0.5 - Math.random());
+        const shuffledTeachers = teachersList.sort(() => 0.5 - Math.random());
 
         for (const day of days) {
             timetable[classroom][day] = {};
 
             for (let i = 0; i < times.length; i++) {
-                const subject = subjects[i % numSubjects];
+                const subjectIndex = i % shuffledSubjects.length;
+                const teacherIndex = i % shuffledTeachers.length;
 
-                timetable[classroom][day][times[i]] = { 
-                    subject: subject.name, 
-                    teacher: subject.teacher 
+                const subject = shuffledSubjects[subjectIndex];
+                const teacher = shuffledTeachers[teacherIndex];
+
+                timetable[classroom][day][times[i]] = {
+                    subject: subject.name,
+                    teacher: teacher.name
                 };
             }
         }
@@ -147,7 +155,6 @@ function createTimetable(): Record<string, Record<string, Record<string, { subje
 
     return timetable;
 }
-
 export default {
     addTeachers,
     addCourses,
